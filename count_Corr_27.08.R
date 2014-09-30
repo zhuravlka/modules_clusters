@@ -206,7 +206,7 @@ make.clusters.coords<-function(modules.tracks){
 
 args <- commandArgs(trailingOnly = TRUE)
 #args<-list('modules_list.txt',test.RData','brain','best1'  '-u', '10000', '-d', '10000', '-g') 
-#args<-c('modules_list.txt','test.RData','brain','best1', '-g') 
+#args<-c('modules_list.txt','test.RData','brain','best1', '-g', '-u', '10') 
 #setwd("F:/work/modules_clusters_clear/modules_clusters/")
 
 initial_dir<-getwd()
@@ -214,25 +214,25 @@ data_dir<-paste(initial_dir,'/data','/out-',args[4], sep="")
 result_dir<-paste(initial_dir,'/result', sep="")
 setwd(data_dir)
 if ( "-g" %in% args){
-  print('in')
+  #print('in')
   modules.tracks<-load.modules(args[1])
   modules.tracks<-load.modules('modules_list.txt')
   tracks <- structure(NA,class="result")
   tracks[cluster.brain.tracks, cluster.active.tracks, cluster.all.tracks]<-make.clusters.coords(modules.tracks)
   } else {
-  print('not')
+  #print('not')
   tracks <- structure(NA,class="result")
   tracks[modules.tracks,cluster.active.tracks,cluster.all.tracks,cluster.brain.tracks]<- load.all.data('modules_list.txt')
 }
 
 if ("-u" %in% args){
   upstream_value_index<-match('-u', args)+1
-  modules.tracks<- change_modules_starts(modules.tracks,args[upstream_value_index] )
+  modules.tracks<- change_modules_starts(modules.tracks,as.integer(args[upstream_value_index]))
   
 }
 if ("-d" %in% args){
   downstream_value_index<-match('-d', args)+1
-  modules.tracks<- change_modules_ends(modules.tracks, args[downstream_value_index])
+  modules.tracks<- change_modules_ends(modules.tracks, as.integer(args[downstream_value_index]))
 }
 
 #args[1]='modules_list.txt'

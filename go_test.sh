@@ -1,6 +1,6 @@
 #!/bin/sh
 #PBS -l walltime=600:00:00
-#PBS -l nodes=node15:ppn=20
+#PBS -l nodes=node22:ppn=20
 cd $PBS_O_WORKDIR
 cd ~zhuravlka/modules_clusters/
 if [ ! -d "results" ]; then
