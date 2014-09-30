@@ -26,11 +26,11 @@ load.all.data<-function(input.file){
   for (i in 1:length(modules_names)){
     module_name <- as.character(modules_names[i])
     #data <- import(name)
-    current_module.track <- as(import(paste(module_name,".bed",sep = "")), "RangedData")
+    current_module.track <- as(import(paste("C",module_name,".tss.nr.bed",sep = "")), "RangedData")
     
-    current_cluster.active.track <- as(import(paste(module_name,".cluster.active.bed",sep = "")) , "RangedData")   
-    current_cluster.all.track <- as(import(paste(module_name,".cluster.all.bed",sep = "")), "RangedData")
-    current_cluster.brain.track <- as(import(paste(module_name,".cluster.brain.bed",sep = "")) , "RangedData")
+    current_cluster.active.track <- as(import(paste("C",module_name,".clust.ge_2.active.bed",sep = "")) , "RangedData")   
+    current_cluster.all.track <- as(import(paste("C",module_name,".clust.ge_2.all.bed",sep = "")), "RangedData")
+    current_cluster.brain.track <- as(import(paste("C",module_name,".clust.ge_2.brain.bed",sep = "")) , "RangedData")
     
     modules.tracks<- c(modules.tracks, current_module.track)
     cluster.active.tracks<- c(cluster.active.tracks, current_cluster.active.track)
@@ -202,8 +202,8 @@ make.clusters.coords<-function(modules.tracks){
 ##___MAIN_for_generation_clusters_coord_and_check_count____####
 
 args <- commandArgs(trailingOnly = TRUE)
-modules.tracks<-load.modules('modules_list.txt')
-
+modules.tracks<-load.modules(args[1])
+#args[1]='modules_list.txt'
 tracks <- structure(NA,class="result")
 tracks[cluster.brain.tracks, cluster.active.tracks, cluster.all.tracks]<-make.clusters.coords(modules.tracks)
  
@@ -216,5 +216,8 @@ correlation_result.module_cluster_all<-create.result.array(modules.tracks, clust
 correlation_result.module_cluster_active<-create.result.array(modules.tracks, cluster.active.tracks)
 correlation_result.module_cluster_brain<-create.result.array(modules.tracks, cluster.brain.tracks)
 
-list[correlation_result.module_cluster_brain]<- countCorr(modules.tracks, get(args[2]),get(args[3]))
-save(correlation_result.module_cluster_brain, file=args[1])
+#args[3]='brain'
+#paste('cluster.',args[3],'.tracks', sep="")
+#paste('correlation_result.module_cluster_',args[3], sep="")
+list[correlation_result.module_cluster_brain]<- countCorr(modules.tracks, get(paste('cluster.',args[3],'.tracks', sep="")),get(paste('correlation_result.module_cluster_',args[3], sep="")))
+save(correlation_result.module_cluster_brain, file=args[2])
