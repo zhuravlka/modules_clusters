@@ -202,19 +202,43 @@ make.clusters.coords<-function(modules.tracks){
 ##___MAIN_for_generation_clusters_coord_and_check_count____####
 
 args <- commandArgs(trailingOnly = TRUE)
-modules.tracks<-load.modules(args[1])
+
+#args<-list(modules_list.txt',test.RData','brain', '-u', '10000', '-d', '10000', '-g') 
+
+if ("-g" %in% args){
+  modules.tracks<-load.modules(args[1])
+  tracks <- structure(NA,class="result")
+  tracks[cluster.brain.tracks, cluster.active.tracks, cluster.all.tracks]<-make.clusters.coords(modules.tracks)
+  
+}
+else{
+  tracks <- structure(NA,class="result")
+  tracks[modules.tracks,cluster.active.tracks,cluster.all.tracks,cluster.brain.tracks]<- load.all.data('modules_list.txt')  
+}
+
+if ("-u" %in% args){
+  upstream_value_index<-match('-u', args)+1
+  modules.tracks<- change_modules_starts(modules.tracks,args[upstream_value_index] )
+  
+}
+if ("-d" %in% args){
+  downstream_value_index<-match('-d', args)+1
+  modules.tracks<- change_modules_ends(modules.tracks, args[downstream_value_index])
+}
+
 #args[1]='modules_list.txt'
-tracks <- structure(NA,class="result")
-tracks[cluster.brain.tracks, cluster.active.tracks, cluster.all.tracks]<-make.clusters.coords(modules.tracks)
- 
-modules.tracks<- change_modules_starts(modules.tracks, 10000)
-modules.tracks<- change_modules_ends(modules.tracks, 10000)
+
+#modules.tracks<- change_modules_starts(modules.tracks, 10000)
+#modules.tracks<- change_modules_ends(modules.tracks, 10000)
 
 list <- structure(NA,class="result")
 
 correlation_result.module_cluster_all<-create.result.array(modules.tracks, cluster.all.tracks)
 correlation_result.module_cluster_active<-create.result.array(modules.tracks, cluster.active.tracks)
 correlation_result.module_cluster_brain<-create.result.array(modules.tracks, cluster.brain.tracks)
+
+
+
 
 #args[3]='brain'
 #paste('cluster.',args[3],'.tracks', sep="")
