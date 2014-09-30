@@ -3,7 +3,7 @@ library("GenometriCorr")
 
 library('doParallel')
 #cl <- makeCluster(1)
-registerDoParallel(cores=18)
+registerDoParallel(cores=19)
 
 ###
 #___how_to_start:
@@ -26,7 +26,7 @@ load.all.data<-function(input.file){
   for (i in 1:length(modules_names)){
     module_name <- as.character(modules_names[i])
     #data <- import(name)
-    current_module.track <- as(import(paste("C",module_name,".tss.nr.bed",sep = "")), "RangedData")
+    current_module.track <- as(import(paste(module_name,".bed",sep = "")), "RangedData")
     
     current_cluster.active.track <- as(import(paste("C",module_name,".clust.ge_2.active.bed",sep = "")) , "RangedData")   
     current_cluster.all.track <- as(import(paste("C",module_name,".clust.ge_2.all.bed",sep = "")), "RangedData")
@@ -127,13 +127,16 @@ change_modules_ends<-function(modules.tracks, downstream){
 }
 
 load.modules<-function(input.modules.list){
+  #input.modules.list<-'modules_list.txt'
   con <- file(input.modules.list, 'r') 
   modules_names <- readLines(con)
   close(con)
   modules.tracks<- c()
   
   for (i in 1:length(modules_names)){
-    current_module.track <- as(import(paste(modules_names[i],".bed",sep = "")), "RangedData") 
+    #i=1
+    #current_module.track <- as(import(paste(modules_names[i],".bed",sep = "")), "RangedData")
+    current_module.track <- as(import(paste(modules_names[i],".bed",sep="")), "RangedData")
     modules.tracks<- c(modules.tracks, current_module.track)
   }  
   names(modules.tracks)<-modules_names
@@ -202,18 +205,24 @@ make.clusters.coords<-function(modules.tracks){
 ##___MAIN_for_generation_clusters_coord_and_check_count____####
 
 args <- commandArgs(trailingOnly = TRUE)
+#args<-list('modules_list.txt',test.RData','brain','best1'  '-u', '10000', '-d', '10000', '-g') 
+#args<-c('modules_list.txt','test.RData','brain','best1', '-g') 
+#setwd("F:/work/modules_clusters_clear/modules_clusters/")
 
-#args<-list(modules_list.txt',test.RData','brain', '-u', '10000', '-d', '10000', '-g') 
-
-if ("-g" %in% args){
+initial_dir<-getwd()
+data_dir<-paste(initial_dir,'/data','/out-',args[4], sep="")
+result_dir<-paste(initial_dir,'/result', sep="")
+setwd(data_dir)
+if ( "-g" %in% args){
+  print('in')
   modules.tracks<-load.modules(args[1])
+  modules.tracks<-load.modules('modules_list.txt')
   tracks <- structure(NA,class="result")
   tracks[cluster.brain.tracks, cluster.active.tracks, cluster.all.tracks]<-make.clusters.coords(modules.tracks)
-  
-}
-else{
+  } else {
+  print('not')
   tracks <- structure(NA,class="result")
-  tracks[modules.tracks,cluster.active.tracks,cluster.all.tracks,cluster.brain.tracks]<- load.all.data('modules_list.txt')  
+  tracks[modules.tracks,cluster.active.tracks,cluster.all.tracks,cluster.brain.tracks]<- load.all.data('modules_list.txt')
 }
 
 if ("-u" %in% args){
@@ -244,4 +253,5 @@ correlation_result.module_cluster_brain<-create.result.array(modules.tracks, clu
 #paste('cluster.',args[3],'.tracks', sep="")
 #paste('correlation_result.module_cluster_',args[3], sep="")
 list[correlation_result.module_cluster_brain]<- countCorr(modules.tracks, get(paste('cluster.',args[3],'.tracks', sep="")),get(paste('correlation_result.module_cluster_',args[3], sep="")))
+setwd(result_dir)
 save(correlation_result.module_cluster_brain, file=args[2])
